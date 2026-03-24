@@ -52,8 +52,8 @@ Keep API endpoints and related settings in a **single config object** defined in
 **index.ts** — config lives here:
 
 ```ts
-import type { AccountConfig } from '$lib/account/profile.repository';
-import { ProfileRepository } from '$lib/account/profile.repository';
+import type { AccountConfig } from '$lib/account/Profile.repository';
+import { ProfileRepository } from '$lib/account/Profile.repository';
 
 const accountConfig: AccountConfig = {
 	endpoints: {
@@ -207,7 +207,7 @@ await workspaceSettingsPresenter.joinByToken(token);
 
 ```ts
 // ✅ GOOD — repository owns HTTP and config; destructure with *Dto, type from generic
-// settings.repository.svelte.ts (or .ts)
+// Settings.repository.svelte.ts (or .ts)
 const { data: validateInviteDto, ok } =
   await this.httpGateway.get<ValidateInviteResponseDto>(
     this.config.endpoints.validateInvite,

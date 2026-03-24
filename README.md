@@ -516,16 +516,6 @@ Local settings detected in vercel.json:
 | `pnpm vercel:deploy:web` | Preview deployment |
 | `pnpm vercel:deploy:web:prod` | Production deployment |
 
-### Scripts (root `package.json`)
-
-| Script | Description |
-|--------|-------------|
-| `pnpm vercel:deploy:backend` | Deploy backend (preview) |
-| `pnpm vercel:deploy:backend:prod` | Deploy backend (production) |
-| `pnpm vercel:deploy:web` | Deploy web (preview) |
-| `pnpm vercel:deploy:web:prod` | Deploy web (production) |
-
-
 
 ### Custom domains (e.g. Route 53)
 
