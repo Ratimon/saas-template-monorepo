@@ -31,22 +31,38 @@ ON CONFLICT (id) DO NOTHING;
 -- ---------------------------
 -- Main Topics
 INSERT INTO public.blog_topics (id, name, description) VALUES
-    ('d5f7a000-0000-4000-a000-000000000001', 'Marketing', 'Marketing strategies and tips'),
-    ('d5f7a000-0000-4000-a000-000000000002', 'Business', 'Business development and growth')
+    ('d5f7a000-0000-4000-a000-000000000001', 'Customer Success & Social Proof', 'Real-world customer outcomes and credibility-building stories'),
+    ('d5f7a000-0000-4000-a000-000000000002', 'Education & Enablement', 'Practical learning content to help users succeed with the product'),
+    ('d5f7a000-0000-4000-a000-000000000003', 'Product Communication', 'Feature updates, roadmap direction, and adoption guidance'),
+    ('d5f7a000-0000-4000-a000-000000000004', 'Competitive Evaluation & Buyer Guidance', 'Decision-support content for product comparisons and buying choices')
 ON CONFLICT (id) DO NOTHING;
 
--- Marketing Subtopics
+-- Customer Success & Social Proof Subtopics
 INSERT INTO public.blog_topics (id, name, description, parent_id) VALUES
-    ('d5f7a000-0000-4000-a000-000000000003', 'Content Marketing', 'Content creation and strategy', 'd5f7a000-0000-4000-a000-000000000001'),
-    ('d5f7a000-0000-4000-a000-000000000004', 'Social Media', 'Social media marketing tips', 'd5f7a000-0000-4000-a000-000000000001'),
-    ('d5f7a000-0000-4000-a000-000000000005', 'Email Marketing', 'Email campaign strategies', 'd5f7a000-0000-4000-a000-000000000001')
+    ('d5f7a000-0000-4000-a000-000000000101', 'Customer Success Stories', 'Narratives showing how customers solved key problems and reached measurable outcomes', 'd5f7a000-0000-4000-a000-000000000001'),
+    ('d5f7a000-0000-4000-a000-000000000102', 'Case Studies', 'Structured deep-dives into implementation, impact, and lessons learned', 'd5f7a000-0000-4000-a000-000000000001')
 ON CONFLICT (id) DO NOTHING;
 
--- Business Subtopics
+-- Education & Enablement Subtopics
 INSERT INTO public.blog_topics (id, name, description, parent_id) VALUES
-    ('d5f7a000-0000-4000-a000-000000000006', 'Startups', 'Startup tips and guides', 'd5f7a000-0000-4000-a000-000000000002'),
-    ('d5f7a000-0000-4000-a000-000000000007', 'Growth', 'Business growth strategies', 'd5f7a000-0000-4000-a000-000000000002'),
-    ('d5f7a000-0000-4000-a000-000000000008', 'Management', 'Business management tips', 'd5f7a000-0000-4000-a000-000000000002')
+    ('d5f7a000-0000-4000-a000-000000000201', 'Educational Guides', 'Foundational explainers and actionable guidance for target use cases', 'd5f7a000-0000-4000-a000-000000000002'),
+    ('d5f7a000-0000-4000-a000-000000000202', 'How-to Tutorials', 'Step-by-step walkthroughs for completing specific jobs in the product', 'd5f7a000-0000-4000-a000-000000000002'),
+    ('d5f7a000-0000-4000-a000-000000000203', 'Feature Walkthroughs by Use Case', 'Practical examples of feature usage across roles and scenarios', 'd5f7a000-0000-4000-a000-000000000002'),
+    ('d5f7a000-0000-4000-a000-000000000204', 'Common Mistakes & Troubleshooting', 'Frequent pitfalls, root causes, and guided fixes', 'd5f7a000-0000-4000-a000-000000000002')
+ON CONFLICT (id) DO NOTHING;
+
+-- Product Communication Subtopics
+INSERT INTO public.blog_topics (id, name, description, parent_id) VALUES
+    ('d5f7a000-0000-4000-a000-000000000301', 'Product Updates', 'Release-focused updates framed around customer benefits and outcomes', 'd5f7a000-0000-4000-a000-000000000003'),
+    ('d5f7a000-0000-4000-a000-000000000302', 'Roadmap Previews', 'Forward-looking posts that explain upcoming direction and priorities', 'd5f7a000-0000-4000-a000-000000000003'),
+    ('d5f7a000-0000-4000-a000-000000000303', 'Adoption Announcements & Migration Tips', 'Enablement content for rollout, onboarding, and transition planning', 'd5f7a000-0000-4000-a000-000000000003')
+ON CONFLICT (id) DO NOTHING;
+
+-- Competitive Evaluation & Buyer Guidance Subtopics
+INSERT INTO public.blog_topics (id, name, description, parent_id) VALUES
+    ('d5f7a000-0000-4000-a000-000000000401', 'Versus Comparison Posts', 'Head-to-head comparisons that clarify key differences and fit', 'd5f7a000-0000-4000-a000-000000000004'),
+    ('d5f7a000-0000-4000-a000-000000000402', 'Buyer Decision Frameworks', 'Decision criteria and scoring approaches for selecting a solution', 'd5f7a000-0000-4000-a000-000000000004'),
+    ('d5f7a000-0000-4000-a000-000000000403', 'When to Choose X vs Y Scenarios', 'Scenario-based guidance to choose the right option for constraints and goals', 'd5f7a000-0000-4000-a000-000000000004')
 ON CONFLICT (id) DO NOTHING;
 
 -- ---------------------------
@@ -74,7 +90,7 @@ This is a sample blog post that demonstrates the capabilities of our blog system
 - And much more!
 
 Get started by creating your first blog post today!',
-    'd5f7a000-0000-4000-a000-000000000004', -- Content Marketing topic
+    'd5f7a000-0000-4000-a000-000000000202', -- How-to Tutorials subtopic
     true,
     true
 )
