@@ -81,6 +81,11 @@ corepack enable
 pnpm install
 ```
 
+3. Set up environment variabless
+
+- [backend](https://github.com/Ratimon/saas-template-monorepo?tab=readme-ov-file#1-environment-variables-setup-for-backend)
+- [web](https://github.com/Ratimon/saas-template-monorepo?tab=readme-ov-file#1-environment-variables-setup-for-web)
+
 ### For Backend Local Development
 
 ```bash
@@ -140,7 +145,7 @@ pnpm ercel:deploy:web
 
 ## Backend Setup
 
-### 1. Environment Variables Setup
+### 1. Environment Variables Setup for Backend
 
 - At **./backend** create a `.env.develpment.local` (by renaming `.env.developmnet.local.example`) file in the root of your project. This file will store all the environment variables needed for your project. Do the same for `production` convention
 - in your local dev environment, leave `NODE_ENV` as development and when deploying, change to production:
@@ -396,6 +401,8 @@ SENDER_EMAIL_ADDRESS=support@domain.com
 
 ## Frontend Setup
 
+### 1. Environment Variables Setup for Web
+
 - At [./web](./web) create a `.env.develpment.local` (by renaming `.env.developmnet.local.example`) file in the root of your project. This file will store all the environment variables needed for your project. Do the same for `production` convention
 
 ```sh
@@ -429,6 +436,8 @@ VITE_PUBLIC_STRIPE_PRICE_ID_PAGE_LIFETIME_PACK=price_
 # Google tag id
 VITE_PUBLIC_GOOGLE_ANALYTICS_MEASUREMENT_ID=G-12345678
 ```
+
+### 2. PWA Config Setup
 
 - At [web-config.json](./web/src/web-config.json), update this for best PWA experience
 
