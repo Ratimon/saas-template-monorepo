@@ -207,7 +207,7 @@ SENTRY_ENABLED=true
   - Create OAuth client credentials (Web application).
   - Add **Authorized redirect URI**:
 
-```text
+```sh
 ${BACKEND_DOMAIN_URL}${API_PREFIX}/auth/oauth/google/callback
 ```
 
@@ -534,11 +534,6 @@ App-level RBAC is distinct from workspace membership. Roles and permissions are 
 - **Admin** — All editor permissions plus `users.manage_roles` (assign/remove roles). Only **super admins** can assign or remove the **admin** role; admins can assign/remove only the **editor** role (enforced in `RbacService` and DB RPCs). Use case: platform admins.
 - **Super Admin** — Not a role; a flag on `public.users` (`is_super_admin = true`). Bypasses permission checks and can assign/remove any role. Grant via SQL: `UPDATE public.users SET is_super_admin = true WHERE id = 'public-user-uuid';` Use sparingly.
 
-### Permissions
-
-| Permission            | Editor | Admin | Description                   |
-|-----------------------|--------|-------|
-| `users.manage_roles` |        | ✓     | Assign/remove roles           |
 
 ### Backend integration
 
