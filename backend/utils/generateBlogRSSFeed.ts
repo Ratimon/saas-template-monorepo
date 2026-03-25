@@ -1,4 +1,3 @@
-import { Feed } from "feed";
 import type { BlogPostLike } from "./dtos/BlogDTO";
 import { companyService, marketingService } from "../services";
 
@@ -11,6 +10,10 @@ export interface BlogFeedResult {
 }
 
 export async function generateBlogRSSFeed(posts: BlogPostLike[]): Promise<BlogFeedResult> {
+    // `feed` is ESM-only in recent versions; use dynamic import so this works
+    // when the backend is bundled as CommonJS for Vercel.
+    const { Feed } = await import("feed");
+
     const companyInfo = await companyService.getCompanyInformationByProperties(["URL", "NAME"]);
     const marketingInfo = await marketingService.getMarketingInformationByProperties([
         "META_DESCRIPTION",
