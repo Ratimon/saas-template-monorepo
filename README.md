@@ -326,13 +326,15 @@ pnpm db:production:push-db
 >[!NOTE]
 > In case you want to reset all db, make sure you delete existing storage and Table-> function. Then dont forget to generate type
 
-- For production, genrate type with command:
+- For local development, genrate type with command:
+
 
 ```sh
 pnpm db:local:typegen
 ```
 
-- For local development, genrate type with command:
+- For production, genrate type with command:
+
 
 ```sh
 pnpm db:production:typegen
