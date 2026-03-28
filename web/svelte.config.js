@@ -1,8 +1,9 @@
 import adapterAuto from '@sveltejs/adapter-auto';
 import adapterVercel from '@sveltejs/adapter-vercel';
+import { mdsvex } from 'mdsvex';
+import { mdsvexCodeHighlighter } from './mdsvex.config.mjs';
 
 const adapter = process.env.VERCEL ? adapterVercel() : adapterAuto();
-// import preprocess from 'svelte-preprocess';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import autoprefixer from "autoprefixer";
 
@@ -23,7 +24,14 @@ const env = loadEnv(mode, resolve(__dirname), 'VITE_');
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
+	extensions: ['.svelte', '.md', '.svx'],
 	preprocess: [
+		mdsvex({
+			extensions: ['.md', '.svx'],
+			highlight: {
+				highlighter: mdsvexCodeHighlighter
+			}
+		}),
 		vitePreprocess({
 			style: {
 			css: {
@@ -35,8 +43,7 @@ const config = {
 			script: {
 				ts: true,
 			}
-		}),
-		// mdsvex(mdsvexOptions)
+		})
 		],
 	kit: {
 		adapter,
