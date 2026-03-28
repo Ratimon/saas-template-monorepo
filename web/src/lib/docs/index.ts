@@ -1,5 +1,11 @@
 export { docsConfig } from '$lib/docs/config';
-export { getAllDocs, getDoc, getDocsByDirectory, getRawContent } from '$lib/docs/content';
+export {
+	getAllDocs,
+	getDoc,
+	getDocsByDirectory,
+	getRawContent,
+	eachLocaleDocPages
+} from '$lib/docs/content';
 export { getNavigation, getPrevNext } from '$lib/docs/navigation';
 export { calculateReadingTime } from '$lib/docs/reading-time';
 export { toc } from '$lib/docs/toc-state.svelte';

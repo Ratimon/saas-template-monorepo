@@ -1,3 +1,6 @@
+import { mergeDocsUrlsIntoUrlset } from '$lib/docs/utils/merge-docs-sitemap';
+import { resolvePublicSiteUrl } from '$lib/docs/utils/resolve-public-site-url';
+
 export async function GET({
 	url,
 	fetch: serverFetch
@@ -5,6 +8,8 @@ export async function GET({
 	url: URL;
 	fetch?: typeof fetch;
 }) {
+	const siteOrigin = resolvePublicSiteUrl(url);
+
 	try {
 		const backendUrl = process.env.VITE_API_BASE_URL || 'http://localhost:3000';
 		const backendSitemapUrl = `${backendUrl.replace(/\/$/, '')}/sitemap.xml`;
@@ -26,8 +31,9 @@ export async function GET({
 		}
 
 		const sitemap = await response.text();
+		const merged = mergeDocsUrlsIntoUrlset(sitemap, siteOrigin);
 
-		return new Response(sitemap, {
+		return new Response(merged, {
 			headers: {
 				'Content-Type': 'application/xml',
 				'Cache-Control': 'public, max-age=3600'
@@ -36,8 +42,7 @@ export async function GET({
 	} catch (error) {
 		console.error('[Sitemap] Error fetching sitemap from backend:', error);
 
-		const hostname =
-			process.env.VITE_PUBLIC_SITE_URL || process.env.SITE_URL || `${url.protocol}//${url.host}`;
+		const hostname = siteOrigin;
 		const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
@@ -48,7 +53,9 @@ export async function GET({
     </url>
 </urlset>`;
 
-		return new Response(fallbackSitemap, {
+		const merged = mergeDocsUrlsIntoUrlset(fallbackSitemap, hostname);
+
+		return new Response(merged, {
 			status: 200,
 			headers: {
 				'Content-Type': 'application/xml'

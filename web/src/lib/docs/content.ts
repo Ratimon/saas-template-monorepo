@@ -101,3 +101,17 @@ export function getDocsByDirectory(directory: string, locale?: string): DocPage[
 		(doc) => doc.slug.startsWith(directory + '/') || doc.slug === directory
 	);
 }
+
+/** All published doc pages per locale (for sitemaps, RSS, llms.txt). */
+export function eachLocaleDocPages(): {
+	locale: string;
+	localeLabel: string;
+	pages: DocPage[];
+}[] {
+	const locales = docsConfig.i18n?.locales ?? [{ code: 'en', label: 'English' }];
+	return locales.map((l) => ({
+		locale: l.code,
+		localeLabel: l.label,
+		pages: getAllDocs(l.code)
+	}));
+}

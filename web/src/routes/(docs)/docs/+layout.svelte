@@ -5,6 +5,7 @@
 	import DocsSidebarLeft from '$lib/ui/components/docs/layout/DocsSidebarLeft.svelte';
 	import DocsSidebarRight from '$lib/ui/components/docs/layout/DocsSidebarRight.svelte';
 	import * as Sidebar from '$lib/ui/sidebar-main/index.js';
+	import { url } from '$lib/utils/path';
 	import { ensureDefaultTheme } from '$lib/ui/daisyui/ThemeSwitcher.svelte';
 	import { docsSite } from '$data/docs';
 
@@ -16,6 +17,7 @@
 
 	const socialLinks = $derived.by(() => {
 		const out: { platform: string; url: string; label?: string }[] = [];
+		out.push({ platform: 'rss', url: url('/rss.xml'), label: 'Documentation RSS' });
 		if (docsSite.social.github) {
 			out.push({ platform: 'github', url: docsSite.social.github, label: 'GitHub' });
 		}
