@@ -1,16 +1,8 @@
-import { base } from '$app/paths';
-import { hrefAppPath } from '$lib/area-public/constants/getRootPathPublicDocs';
 import { eachLocaleDocPages } from '$lib/docs/content';
-import { docsConfig } from '$lib/docs/config';
+import { docsConfig } from '$lib/docs/constants';
 import { resolvePublicSiteUrl } from '$lib/docs/utils/resolve-public-site-url';
 import { escapeXml } from '$lib/docs/utils/xml-escape';
 import type { RequestHandler } from './$types';
-
-function absUrl(origin: string, pathname: string): string {
-	const o = origin.replace(/\/$/, '');
-	const p = pathname.startsWith('/') ? pathname : `/${pathname}`;
-	return `${o}${p}`;
-}
 
 export const prerender = true;
 
@@ -21,10 +13,6 @@ export const GET: RequestHandler = ({ url }) => {
 	const siteDescription = docsConfig.site.description;
 	const blogRssUrl = `${siteUrl}/api/v1/blog-system/rss?format=rss`;
 	const channelDescription = `${siteDescription} Blog posts: ${blogRssUrl}`;
-
-	const docsLink = absUrl(siteUrl, hrefAppPath(['docs']));
-	const rssPath = `${base}/rss.xml`.replace(/\/{2,}/g, '/');
-	const selfHref = absUrl(siteUrl, rssPath);
 
 	const items: string[] = [];
 	for (const { locale, localeLabel, pages } of eachLocaleDocPages()) {
@@ -49,10 +37,10 @@ export const GET: RequestHandler = ({ url }) => {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>${escapeXml(siteTitle)} — Docs</title>
-    <link>${escapeXml(docsLink)}</link>
+    <link>${escapeXml(`${siteUrl}/docs`)}</link>
     <description>${escapeXml(channelDescription)}</description>
     <language>${defaultLocale}</language>
-    <atom:link href="${escapeXml(selfHref)}" rel="self" type="application/rss+xml" />
+    <atom:link href="${escapeXml(`${siteUrl}/rss.xml`)}" rel="self" type="application/rss+xml" />
 ${items.join('\n')}
   </channel>
 </rss>`;

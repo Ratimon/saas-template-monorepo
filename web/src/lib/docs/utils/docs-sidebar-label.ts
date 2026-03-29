@@ -1,4 +1,4 @@
-import { docsConfig } from '$lib/docs/config';
+import { docsConfig } from '$lib/docs/constants';
 
 /** Sidebar directory segment: `guides` for `guides/foo`; empty for index or single-segment slugs. */
 export function docSectionKey(slug: string): string {

@@ -1,4 +1,4 @@
-import { docsConfig } from '$lib/docs/config';
+import { docsConfig } from '$lib/docs/constants';
 
 /** Canonical public origin for feeds and sitemaps (env overrides request). */
 export function resolvePublicSiteUrl(requestUrl: URL): string {

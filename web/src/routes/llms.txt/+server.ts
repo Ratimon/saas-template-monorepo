@@ -1,19 +1,9 @@
-import { base } from '$app/paths';
 import { eachLocaleDocPages } from '$lib/docs/content';
-import { docsConfig } from '$lib/docs/config';
+import { docsConfig } from '$lib/docs/constants';
 import { docSectionKey, sidebarLabelForSection } from '$lib/docs/utils/docs-sidebar-label';
 import { resolvePublicSiteUrl } from '$lib/docs/utils/resolve-public-site-url';
 import type { DocPage } from '$lib/docs/types';
 import type { RequestHandler } from './$types';
-
-function appPath(path: string): string {
-	const p = path.startsWith('/') ? path : `/${path}`;
-	return `${base}${p}`.replace(/\/{2,}/g, '/');
-}
-
-function absOnSite(origin: string, pathname: string): string {
-	return `${origin.replace(/\/$/, '')}${pathname.startsWith('/') ? pathname : `/${pathname}`}`;
-}
 
 function groupBySection(pages: DocPage[]): Map<string, DocPage[]> {
 	const map = new Map<string, DocPage[]>();
@@ -37,6 +27,8 @@ function orderedSectionKeys(grouped: Map<string, DocPage[]>): string[] {
 	return keys;
 }
 
+export const prerender = true;
+
 export const GET: RequestHandler = async ({ url }) => {
 	const siteUrl = resolvePublicSiteUrl(url);
 	const siteTitle = docsConfig.site.title;
@@ -49,7 +41,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	lines.push(`> ${siteDesc}`);
 	lines.push('');
 	lines.push(`Documentation index for LLM and tool consumption (all locales).`);
-	lines.push(`Full page text: ${absOnSite(siteUrl, appPath('/llms-full.txt'))}`);
+	lines.push(`Full page text: ${siteUrl}/llms-full.txt`);
 	lines.push(`Blog feed (RSS): ${blogRss}`);
 	lines.push('');
 
@@ -85,5 +77,3 @@ export const GET: RequestHandler = async ({ url }) => {
 		}
 	});
 };
-
-export const prerender = true;

@@ -16,9 +16,9 @@
 	import { getRootPathSecretAdminArea } from '$lib/area-admin/constants/getRootPathSecretAdminArea';
 	import { getRootPathAdminArea } from '$lib/area-admin/constants/getRootPathAdminArea';
 	import { absoluteUrl } from '$lib/utils/path';
+	import { ensureDefaultTheme } from '$lib/ui/daisyui/ThemeSwitcher.svelte';
 
 	import SidebarProtected from '$lib/ui/templates/SidebarProtected.svelte';
-	import { ensureDefaultTheme } from '$lib/ui/daisyui/ThemeSwitcher.svelte';
 
 	type Props = {
 		children: Snippet;
@@ -38,7 +38,7 @@
 	let canSeeEditorArea = $derived(isEditor || isSuperAdmin);
 	let canSeeAdminArea = $derived(isAdmin || isSuperAdmin);
 
-	let companyNameVm = $derived(companyName ?? 'Content OS');
+	let companyNameVm = $derived(companyName ?? 'Openquok');
 	let currentUserName = $derived(
 		(currentUser?.fullName ?? currentUser?.email ?? null)?.split(/\s+/)[0] ?? null
 	);

@@ -1,10 +1,11 @@
 <script lang="ts">
 	import type { DockItem } from '$lib/ui/floating-dock/types';
+	
 	import Button from '$lib/ui/buttons/Button.svelte';
+	import * as Tooltip from '$lib/ui/tooltip';
 	import FloatingDockDesktop from '$lib/ui/floating-dock/FloatingDockDesktop.svelte';
 	import DockCustomSlot from '$lib/ui/floating-dock/DockCustomSlot.svelte';
 	import ThemeSwitcher from '$lib/ui/daisyui/ThemeSwitcher.svelte';
-	import * as Tooltip from '$lib/ui/tooltip';
 	import FeedbackPopoverForm from '$lib/ui/components/feedback/FeedbackPopoverForm.svelte';
 
 	type Props = {
@@ -64,11 +65,29 @@
 				Secret admin
 			</Button>
 		{/if}
-		<Button variant="ghost" size="sm" class="hidden sm:inline-flex" href="/docs">Docs</Button>
+		
+		<Button variant="ghost" size="sm" class="hidden sm:inline-flex" href="/docs">
+			Docs
+		</Button>
+
 		<FloatingDockDesktop items={dockItems} class="mx-0" childrenFirst>
 			{#snippet customSlots({ mouseX, containerX })}
-				<DockCustomSlot {mouseX} {containerX} title="Theme">
-					<ThemeSwitcher variant="dock" />
+				<DockCustomSlot {mouseX} {containerX} title="">
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							{#snippet child({ props: triggerProps })}
+								<span
+									{...triggerProps}
+									class="relative flex h-full w-full items-center justify-center"
+								>
+									<ThemeSwitcher variant="dock" />
+								</span>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content side="top" sideOffset={8}>
+							Switch theme
+						</Tooltip.Content>
+					</Tooltip.Root>
 				</DockCustomSlot>
 				<DockCustomSlot {mouseX} {containerX} title="">
 					<Tooltip.Root>
