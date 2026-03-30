@@ -84,16 +84,74 @@ export function getDoc(slug: string, locale?: string): DocPage | undefined {
 	return getAllDocs(locale).find((doc) => doc.slug === slug);
 }
 
+/** Normalize glob keys so suffix matching works across platforms / Vite key shapes. */
+function normalizeGlobKey(p: string): string {
+	return p.replace(/\\/g, '/');
+}
+
+/**
+ * Candidate paths for a doc slug. Section roots use `dir/index.md` (URL slug is `dir`, not `dir/index`).
+ */
+function rawPathCandidates(slug: string, locale: string | undefined): string[] {
+	const defaultLocale = docsConfig.i18n?.defaultLocale ?? 'en';
+	const localized = Boolean(locale && locale !== defaultLocale);
+	const root = localized
+		? `/src/content/docs-${locale}`
+		: '/src/content/docs';
+
+	if (!slug) {
+		return [`${root}/index.md`, `${root}/index.svx`];
+	}
+
+	return [
+		`${root}/${slug}.md`,
+		`${root}/${slug}/index.md`,
+		`${root}/${slug}.svx`,
+		`${root}/${slug}/index.svx`
+	];
+}
+
+/**
+ * Resolve raw file text when direct `/src/content/...` keys miss (Vite glob keys can differ).
+ */
+function findRawByPathSuffix(
+	modules: Record<string, string>,
+	slug: string,
+	locale: string | undefined
+): string {
+	const defaultLocale = docsConfig.i18n?.defaultLocale ?? 'en';
+	const dir =
+		locale && locale !== defaultLocale ? `content/docs-${locale}` : 'content/docs';
+
+	const needles: string[] = slug
+		? [
+				`/${dir}/${slug}.md`,
+				`/${dir}/${slug}.svx`,
+				`/${dir}/${slug}/index.md`,
+				`/${dir}/${slug}/index.svx`
+			]
+		: [`/${dir}/index.md`, `/${dir}/index.svx`];
+
+	for (const [path, raw] of Object.entries(modules)) {
+		const n = normalizeGlobKey(path);
+		for (const needle of needles) {
+			if (n.endsWith(needle)) return raw;
+		}
+	}
+	return '';
+}
+
 export function getRawContent(slug: string, locale?: string): string {
 	const defaultLocale = docsConfig.i18n?.defaultLocale ?? 'en';
-	if (!locale || locale === defaultLocale) {
-		const path = slug ? `/src/content/docs/${slug}.md` : '/src/content/docs/index.md';
-		return rawModules[path] ?? '';
+	const localized = Boolean(locale && locale !== defaultLocale);
+	const modules = localized ? rawLocalizedModules : rawModules;
+
+	for (const p of rawPathCandidates(slug, locale)) {
+		const direct = modules[p] ?? modules[p.replace(/^\//, '')];
+		if (direct) return direct;
 	}
-	const path = slug
-		? `/src/content/docs-${locale}/${slug}.md`
-		: `/src/content/docs-${locale}/index.md`;
-	return rawLocalizedModules[path] ?? '';
+
+	return findRawByPathSuffix(modules, slug, locale);
 }
 
 export function getDocsByDirectory(directory: string, locale?: string): DocPage[] {
@@ -102,13 +160,17 @@ export function getDocsByDirectory(directory: string, locale?: string): DocPage[
 	);
 }
 
-export function eachLocaleDocPages(): { locale: string; localeLabel: string; pages: DocPage[] }[] {
-	const defaultLocale = docsConfig.i18n?.defaultLocale ?? 'en';
-	const locales = docsConfig.i18n?.locales ?? [{ code: defaultLocale, label: defaultLocale }];
-
+/** All published doc pages per locale (for sitemaps, RSS, llms.txt). */
+export function eachLocaleDocPages(): {
+	locale: string;
+	localeLabel: string;
+	pages: DocPage[];
+}[] {
+	const locales = docsConfig.i18n?.locales ?? [{ code: 'en', label: 'English' }];
 	return locales.map((l) => ({
 		locale: l.code,
 		localeLabel: l.label,
 		pages: getAllDocs(l.code)
 	}));
 }
+
