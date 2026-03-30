@@ -8,7 +8,7 @@ export async function GET({
 	url: URL;
 	fetch?: typeof fetch;
 }) {
-	const siteOrigin = resolvePublicSiteUrl(url);
+	const siteUrl = resolvePublicSiteUrl(url);
 
 	try {
 		const backendUrl = process.env.VITE_API_BASE_URL || 'http://localhost:3000';
@@ -30,10 +30,9 @@ export async function GET({
 			throw new Error(`Backend sitemap returned ${response.status}: ${response.statusText}`);
 		}
 
-		const sitemap = await response.text();
-		const merged = mergeDocsUrlsIntoUrlset(sitemap, siteOrigin);
+		const sitemap = mergeDocsUrlsIntoUrlset(await response.text(), siteUrl);
 
-		return new Response(merged, {
+		return new Response(sitemap, {
 			headers: {
 				'Content-Type': 'application/xml',
 				'Cache-Control': 'public, max-age=3600'
@@ -42,18 +41,17 @@ export async function GET({
 	} catch (error) {
 		console.error('[Sitemap] Error fetching sitemap from backend:', error);
 
-		const hostname = siteOrigin;
 		const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>${hostname.replace(/\/$/, '')}/</loc>
+        <loc>${siteUrl}/</loc>
         <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
 </urlset>`;
 
-		const merged = mergeDocsUrlsIntoUrlset(fallbackSitemap, hostname);
+		const merged = mergeDocsUrlsIntoUrlset(fallbackSitemap, siteUrl);
 
 		return new Response(merged, {
 			status: 200,

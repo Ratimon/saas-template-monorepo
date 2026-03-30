@@ -54,3 +54,4 @@ For example with Vercel or Netlify, you can set up branch deploys:
 ## Disabling
 
 To remove the version selector, simply remove or comment out the `versions` key in your config. The sidebar header will show just the site title without a dropdown.
+

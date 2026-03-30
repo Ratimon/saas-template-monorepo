@@ -51,9 +51,18 @@
 				<Tooltip.Content side="bottom" sideOffset={6}>Home</Tooltip.Content>
 			</Tooltip.Root>
 			<div class="hidden items-center md:flex">
-				<SocialLinks links={socialLinks} />
+				<SocialLinks links={socialLinks} withTooltips />
 			</div>
-			<DocsLocaleSwitcher variant="header" />
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+					{#snippet child({ props: triggerProps })}
+						<span {...triggerProps} class="inline-flex">
+							<DocsLocaleSwitcher variant="header" />
+						</span>
+					{/snippet}
+				</Tooltip.Trigger>
+				<Tooltip.Content side="bottom" sideOffset={6}>Switch language</Tooltip.Content>
+			</Tooltip.Root>
 			<Tooltip.Root>
 				<Tooltip.Trigger>
 					{#snippet child({ props: triggerProps })}

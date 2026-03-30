@@ -46,3 +46,4 @@ Una vez agregado, aparecerá un dropdown en el encabezado del sidebar mostrando 
 ## Desactivar
 
 Para remover el selector de versiones, simplemente elimina o comenta la clave `versions` en tu configuración.
+

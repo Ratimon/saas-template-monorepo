@@ -80,3 +80,4 @@ sidebar:
   label: Etiqueta Personalizada   # Opcional — sobreescribe el título en el sidebar
 ---
 ```
+

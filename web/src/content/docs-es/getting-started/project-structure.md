@@ -52,3 +52,4 @@ El motor de documentación:
 | `vite.config.ts` | Configuración de Vite + Tailwind CSS |
 | `src/lib/docs/config.ts` | Configuración del sitio de documentación |
 | `components.json` | Configuración de shadcn-svelte |
+

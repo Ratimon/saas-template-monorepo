@@ -11,3 +11,4 @@ Esta es una plantilla de documentación impulsada por **SvelteKit**, **Tailwind 
 ## Inicio Rápido
 
 Comienza leyendo la guía de [Instalación](/docs/es/getting-started/installation).
+

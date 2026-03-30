@@ -51,3 +51,4 @@ The documentation engine:
 | `vite.config.ts` | Vite + Tailwind CSS setup |
 | `src/lib/docs/config.ts` | Docs site configuration |
 | `components.json` | shadcn-svelte configuration |
+

@@ -6,7 +6,7 @@
 		hrefAppPath,
 		stripAppBase
 	} from '$lib/area-public/constants/getRootPathPublicDocs';
-	import { docsConfig } from '$lib/docs/constants/config';
+	import { docsConfig } from '$lib/docs/config';
 	import { icons } from '$data/icon';
 
 	import * as DropdownMenu from '$lib/ui/dropdown-menu/index.js';

@@ -52,3 +52,4 @@ my-docs/
 - [Project Structure](/docs/getting-started/project-structure) — Learn how the template is organized
 - [Configuration](/docs/guides/configuration) — Customize your docs site
 - [Writing Content](/docs/guides/writing-content) — Learn how to write documentation
+

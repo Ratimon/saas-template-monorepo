@@ -147,7 +147,7 @@ pnpm ercel:deploy:web
 
 ### 1. Environment Variables Setup for Backend
 
-- At **./backend** create a `.env.develpment.local` (by renaming `.env.developmnet.local.example`) file in the root of your project. This file will store all the environment variables needed for your project. Do the same for `production` convention
+- At **./backend** create a `.env.development.local` (by renaming `.env.development.local.example`) file in the root of your project. This file will store all the environment variables needed for your project. Do the same for `production` convention
 - in your local dev environment, leave `NODE_ENV` as development and when deploying, change to production:
 
 ```bash
@@ -169,7 +169,8 @@ SUPABASE_SERVICE_ROLE_KEY=
 
 ### 1.2 Redis Cache
 
-By default the backend uses an **in-memory** cache (`CACHE_PROVIDER=memory`).
+By default, the backend uses an **in-memory** cache (`CACHE_PROVIDER=memory`) for local development.
+
 To use Redis instead (recommended for production or multi-instance deployments), follow the steps below.
 
 #### 1. Create a Redis database
@@ -380,7 +381,7 @@ pnpm db:production:typegen
 - For signup confirmation email, we use **Resend** in production:
 - we also have set the supabase 's **Sign In / Providers** -> **Confirm  Email** to be true:
 
-![Supabase Config](./docs/supabase-email-setting.png)
+![Supabase Config](./web/static/docs/supabase-email-setting.png)
 
 or
 

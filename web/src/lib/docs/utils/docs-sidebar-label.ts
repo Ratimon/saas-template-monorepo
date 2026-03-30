@@ -1,6 +1,6 @@
 import { docsConfig } from '$lib/docs/constants';
 
-/** Sidebar directory segment: `guides` for `guides/foo`; empty for index or single-segment slugs. */
+/** Sidebar directory segment: e.g. `getting-started` for `getting-started/installation`. */
 export function docSectionKey(slug: string): string {
 	const parts = slug.split('/');
 	return parts.length > 1 ? parts[0]! : '';
@@ -12,3 +12,4 @@ export function sidebarLabelForSection(section: string): string {
 	if (match) return match.label;
 	return section.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
+

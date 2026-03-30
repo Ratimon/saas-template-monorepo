@@ -8,3 +8,4 @@ order: 0
 
 - [Installation](/docs/getting-started/installation)
 - [Project structure](/docs/getting-started/project-structure)
+

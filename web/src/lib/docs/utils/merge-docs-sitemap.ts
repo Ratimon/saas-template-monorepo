@@ -1,5 +1,5 @@
 import { eachLocaleDocPages } from '$lib/docs/content';
-import { escapeXml } from './xml-escape';
+import { escapeXml } from '$lib/docs/utils/xml-escape';
 
 function extractLocs(xml: string): Set<string> {
 	const set = new Set<string>();
@@ -33,3 +33,4 @@ export function mergeDocsUrlsIntoUrlset(backendXml: string, siteOrigin: string):
 	if (blocks.length === 0) return backendXml;
 	return backendXml.replace(/\s*<\/urlset>\s*$/i, `\n${blocks.join('\n')}\n</urlset>`);
 }
+

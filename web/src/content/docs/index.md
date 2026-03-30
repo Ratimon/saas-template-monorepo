@@ -22,3 +22,4 @@ This is a documentation starter template powered by **SvelteKit**, **Tailwind CS
 ## Quick Start
 
 Get started by reading the [Installation](/docs/getting-started/installation) guide.
+

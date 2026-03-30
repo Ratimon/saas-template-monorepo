@@ -31,6 +31,7 @@
 	import AbstractIcon from '$lib/ui/icons/AbstractIcon.svelte';
 	import Button from '$lib/ui/buttons/Button.svelte';
 	import { cn } from '$lib/ui/helpers/common';
+	import * as Tooltip from '$lib/ui/tooltip';
 
 	/** Match docs header controls (ThemeSwitcher, DocsLocaleSwitcher): base-200 hover, not ghost accent. */
 	const headerIconHitClass = cn(
@@ -38,22 +39,46 @@
 		'inline-flex shrink-0 items-center justify-center'
 	);
 
-	let { links = [] }: { links: SocialLink[] } = $props();
+	let { links = [], withTooltips = false }: { links: SocialLink[]; withTooltips?: boolean } = $props();
 </script>
 
 {#each links as link}
 	{@const iconName = iconMap[link.platform.toLowerCase()]}
+	{@const label = link.label ?? link.platform}
 	{#if iconName}
-		<Button
-			variant="ghost"
-			size="icon"
-			class={headerIconHitClass}
-			href={link.url}
-			target="_blank"
-			rel="noopener noreferrer"
-			aria-label={link.label ?? link.platform}
-		>
-			<AbstractIcon name={iconName} class="size-4" width="16" height="16" />
-		</Button>
+		{#if withTooltips}
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+					{#snippet child({ props: triggerProps })}
+						<span {...triggerProps} class="inline-flex">
+							<Button
+								variant="ghost"
+								size="icon"
+								class={headerIconHitClass}
+								href={link.url}
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label={label}
+							>
+								<AbstractIcon name={iconName} class="size-4" width="16" height="16" />
+							</Button>
+						</span>
+					{/snippet}
+				</Tooltip.Trigger>
+				<Tooltip.Content side="bottom" sideOffset={6}>{label}</Tooltip.Content>
+			</Tooltip.Root>
+		{:else}
+			<Button
+				variant="ghost"
+				size="icon"
+				class={headerIconHitClass}
+				href={link.url}
+				target="_blank"
+				rel="noopener noreferrer"
+				aria-label={label}
+			>
+				<AbstractIcon name={iconName} class="size-4" width="16" height="16" />
+			</Button>
+		{/if}
 	{/if}
 {/each}

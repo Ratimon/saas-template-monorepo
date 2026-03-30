@@ -79,3 +79,4 @@ sidebar:
   label: Custom Label    # Optional — overrides the title in the sidebar
 ---
 ```
+

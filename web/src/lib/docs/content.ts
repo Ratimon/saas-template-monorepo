@@ -1,5 +1,14 @@
-import { docsConfig } from '$lib/docs/constants';
+import { hrefAppPath } from '$lib/area-public/constants/getRootPathPublicDocs';
+import { docsConfig } from '$lib/docs/config';
 import type { DocFile, DocMeta, DocPage } from '$lib/docs/types';
+
+function docsHrefPrefix(locale?: string): string {
+	const defaultLocale = docsConfig.i18n?.defaultLocale ?? 'en';
+	if (!locale || locale === defaultLocale) {
+		return hrefAppPath(['docs']);
+	}
+	return hrefAppPath(['docs', locale]);
+}
 
 const contentModules = import.meta.glob<DocFile>('/src/content/docs/**/*.{md,svx}', {
 	eager: true
@@ -57,7 +66,7 @@ export function getAllDocs(locale?: string): DocPage[] {
 	const defaultLocale = docsConfig.i18n?.defaultLocale ?? 'en';
 
 	if (!locale || locale === defaultLocale) {
-		return buildDocs(contentModules, '/src/content/docs/', '/docs');
+		return buildDocs(contentModules, '/src/content/docs/', docsHrefPrefix());
 	}
 
 	const prefix = `/src/content/docs-${locale}/`;
@@ -68,7 +77,7 @@ export function getAllDocs(locale?: string): DocPage[] {
 		}
 	}
 
-	return buildDocs(filtered, prefix, `/docs/${locale}`);
+	return buildDocs(filtered, prefix, docsHrefPrefix(locale));
 }
 
 export function getDoc(slug: string, locale?: string): DocPage | undefined {
@@ -93,13 +102,10 @@ export function getDocsByDirectory(directory: string, locale?: string): DocPage[
 	);
 }
 
-/** All published doc pages per locale (for sitemaps, RSS, llms.txt). */
-export function eachLocaleDocPages(): {
-	locale: string;
-	localeLabel: string;
-	pages: DocPage[];
-}[] {
-	const locales = docsConfig.i18n?.locales ?? [{ code: 'en', label: 'English' }];
+export function eachLocaleDocPages(): { locale: string; localeLabel: string; pages: DocPage[] }[] {
+	const defaultLocale = docsConfig.i18n?.defaultLocale ?? 'en';
+	const locales = docsConfig.i18n?.locales ?? [{ code: defaultLocale, label: defaultLocale }];
+
 	return locales.map((l) => ({
 		locale: l.code,
 		localeLabel: l.label,

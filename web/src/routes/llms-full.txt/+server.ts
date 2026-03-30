@@ -98,3 +98,4 @@ export const GET: RequestHandler = async ({ url }) => {
 };
 
 export const prerender = true;
+
