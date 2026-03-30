@@ -8,7 +8,8 @@
 	let copied = $state(false);
 
 	function copyUrl() {
-		const url = page.url.href;
+		// Prerender-safe: only called on click in browser, but keep URL queryless for canonical copying.
+		const url = page.url.origin + page.url.pathname;
 		void navigator.clipboard.writeText(url).then(() => {
 			copied = true;
 			setTimeout(() => {

@@ -16,10 +16,10 @@
 	let authDialogOpen = $state(false);
 
 	let isLoggedIn = $derived(page.data.isLoggedIn ?? false);
-	let pageUrl = $derived(page.url.href);
-	let signinReturnPath = $derived(
-		page.url.pathname + page.url.search + page.url.hash
-	);
+	/** Prerendering cannot depend on query strings; use origin + pathname only. */
+	let pageUrl = $derived(page.url.origin + page.url.pathname);
+	/** Keep redirect stable for prerendered docs pages (no search/hash). */
+	let signinReturnPath = $derived(page.url.pathname);
 	let status = $derived(docsPageFeedbackPresenter.status);
 	let toastMessage = $derived(docsPageFeedbackPresenter.toastMessage);
 	let isSubmitting = $derived(status === FeedbackStatus.SUBMITTING);

@@ -12,9 +12,22 @@
 
 	let siteTitle = docsConfig.site.title;
 	let fullTitle = $derived(title === siteTitle ? title : `${title} — ${siteTitle}`);
-	let url = $derived(
-		docsConfig.site.url ? `${docsConfig.site.url}${page.url.pathname}` : page.url.href
-	);
+	/**
+	 * Prerendering cannot depend on query strings; avoid accessing `page.url.href/search`.
+	 * Canonical is always origin + pathname.
+	 *
+	 * Note: During prerender, SvelteKit disallows reading `page.url.search/searchParams`.
+	 * Some URL properties may be implemented via getters; keep usage minimal and avoid `page.url.origin`.
+	 */
+	let url = $derived.by(() => {
+		const fromConfig = docsConfig.site.url?.trim();
+		const fromEnv =
+			(typeof process !== 'undefined' && (process.env.VITE_PUBLIC_SITE_URL || process.env.SITE_URL)) || '';
+
+		const origin = (fromConfig || fromEnv).replace(/\/$/, '');
+		const path = page.url.pathname;
+		return origin ? `${origin}${path}` : path;
+	});
 
 	let breadcrumbItems = $derived.by(() => {
 		const parts = page.url.pathname.split('/').filter(Boolean);
