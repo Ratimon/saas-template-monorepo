@@ -433,6 +433,25 @@ SENDER_EMAIL_ADDRESS=support@domain.com
 
 3. Make sure your `RESEND_SECRET_KEY` is set in your environment variables.
 
+4. Implement DMARC (recommended for Gmail to not be marked as spam)
+
+Resend domain verification ensures SPF and DKIM are in place, but DMARC is configured via your DNS provider.
+Follow the Resend guide: <ExternalLink href="https://resend.com/docs/dashboard/domains/dmarc">Implementing DMARC</ExternalLink>.
+
+If you use AWS Route 53:
+
+- Go to **Route 53** → **Hosted zones** → select your domain (e.g. `openquok.com`)
+- Create a record:
+  - **Name**: `_dmarc`
+  - **Type**: `TXT`
+  - **Value**:
+
+```txt
+"v=DMARC1; p=none; rua=mailto:dmarcreports@yourdomain.com;"
+```
+
+Start with `p=none` (monitoring) and move to `p=quarantine` once you confirm your mail is passing DMARC.
+
 
 ## Frontend Setup
 

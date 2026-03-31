@@ -27,6 +27,15 @@ export function getRootPathPermissionManager(): string {
 }
 
 /**
+ * Segment for secret-admin email manager (Resend inbox / send).
+ */
+export function getRootPathEmailManager(): string {
+	return 'email-manager';
+}
+
+
+
+/**
  * Full path for secret-admin feedback manager.
  */
 export function getRootPathSecretAdminFeedbackManager(): string {
@@ -46,6 +55,16 @@ export function getRootPathSecretAdminRoleManager(): string {
 export function getRootPathSecretAdminPermissionManager(): string {
 	return `${getRootPathSecretAdminArea()}/${getRootPathPermissionManager()}`;
 }
+
+
+/**
+ * Full path for secret-admin email manager.
+ */
+export function getRootPathSecretAdminEmailManager(): string {
+	return `${getRootPathSecretAdminArea()}/${getRootPathEmailManager()}`;
+}
+
+
 
 /**
  * Segment for secret-admin blog manager.
