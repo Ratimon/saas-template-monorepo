@@ -23,7 +23,7 @@ Applies to Markdown and MDsvex files under `web/src/content/docs/`.
   Wrap with `<DocsExternalLink href="...">` when the link leaves the docs site (GitHub is external).
 - **Short labels** can use `<code>path/to/file</code>` inside the link, or **`Badge`** with **`variant="path"`** for scan-friendly chips:  
   `<DocsExternalLink href="https://github.com/.../blob/main/backend/vercel.json"><Badge text="backend/vercel.json" variant="path" /></DocsExternalLink>`.
-- Keep `docsSite.social.github` in `web/src/data/docs.ts` aligned with the org/repo used in URLs.
+- Keep `docsSite.social.github` in `web/src/lib/docs/constants/config.ts` aligned with the org/repo used in URLs.
 
 ## Badges for env vars, paths, and examples (`Badge`)
 
@@ -105,7 +105,7 @@ Clone the template repository and install dependencies.
 
 ### Configure your site
 
-Edit `web/src/data/docs.ts` and `web/src/lib/docs/constants/config.ts` with your site details.
+Edit `web/src/lib/docs/constants/config.ts` with your site details.
 
 </Steps>
 ```

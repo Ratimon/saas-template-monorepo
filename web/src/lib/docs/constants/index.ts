@@ -1,1 +1,1 @@
-export { docsConfig } from './config';
+export { docsConfig, docsSite } from './config';
