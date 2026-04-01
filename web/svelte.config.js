@@ -24,6 +24,10 @@ const env = loadEnv(mode, resolve(__dirname), 'VITE_');
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
+	// mdsvex still emits `<script context="module">` for frontmatter until a release uses `<script module>` (Svelte 5).
+	compilerOptions: {
+		warningFilter: (warning) => warning.code !== 'script_context_deprecated'
+	},
 	extensions: ['.svelte', '.md', '.svx'],
 	preprocess: [
 		mdsvex({
@@ -47,6 +51,11 @@ const config = {
 		],
 	kit: {
 		adapter,
+		prerender: {
+			// Docs i18n markdown routes can overlap (e.g. `/docs/es/markdown` matches both `[lang=lang]` and `[...slug]`).
+			// Prefer continuing the build while keeping visibility in logs.
+			handleEntryGeneratorMismatch: 'warn'
+		},
 		alias: {
 			'web-config': './src/web-config.json',
 			'$data': './src/data',

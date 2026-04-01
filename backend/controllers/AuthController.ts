@@ -2,7 +2,6 @@ import type { Request, Response, NextFunction } from "express";
 import type { AuthenticationService } from "../services/AuthenticationService";
 import type { UserRepository } from "../repositories/UserRepository";
 import type { EmailService } from "../services/EmailService";
-import type { OAuthService } from "../services/OAuthService";
 import type { OrganizationService } from "../services/OrganizationService";
 
 import type {
@@ -37,7 +36,6 @@ export class AuthController {
     private userRepository: UserRepository;
     private authenticationService: AuthenticationService;
     private emailService: EmailService;
-    private oauthService: OAuthService;
     private organizationService: OrganizationService;
 
     /**
@@ -102,12 +100,32 @@ export class AuthController {
 
     private setRefreshTokenCookie(res: Response, refreshToken: string): void {
         const isProduction = serverConfig.nodeEnv === "production";
+        const domain = (() => {
+            if (!isProduction) return undefined;
+            try {
+                const backUrl = new URL(serverConfig.backendDomainUrl ?? "");
+                const hostname = backUrl.hostname;
+                // Don't set domain for IPs/localhost (invalid/pointless).
+                if (hostname === "localhost") return undefined;
+                if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) return undefined;
+
+                // If backend is a subdomain (e.g. api.example.com), set cookie domain to registrable site
+                // (example.com) so requests to other subdomains or the apex can include the refresh cookie.
+                const site = this.getSiteKey(hostname);
+                if (hostname !== site && hostname.endsWith(`.${site}`)) return site;
+                return undefined;
+            } catch {
+                return undefined;
+            }
+        })();
+
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: isProduction,
             sameSite: this.getSameSiteValue(),
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
             path: "/",
+            ...(domain ? { domain } : {}),
         });
     }
 
@@ -135,15 +153,107 @@ export class AuthController {
         authenticationService: AuthenticationService,
         userRepository: UserRepository,
         emailService: EmailService,
-        oauthService: OAuthService,
         organizationService: OrganizationService
     ) {
         this.authenticationService = authenticationService;
         this.userRepository = userRepository;
         this.emailService = emailService;
-        this.oauthService = oauthService;
         this.organizationService = organizationService;
     }
+
+    /**
+     * Start Google OAuth (Supabase PKCE).
+     * Redirects the browser to Google via Supabase, with callback back to this backend.
+     */
+    public startGoogleOAuth = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const nextPath = typeof req.query.next === "string" ? req.query.next : undefined;
+            // Store intended post-login path on the backend origin so Supabase redirect_to stays stable.
+            // This avoids Supabase falling back to Site URL when query params cause allow-list mismatches.
+            const safeNext = nextPath && nextPath.startsWith("/") ? nextPath : "/account";
+            res.cookie("oauthNext", safeNext, {
+                httpOnly: true,
+                secure: serverConfig.nodeEnv === "production",
+                sameSite: this.getSameSiteValue(),
+                maxAge: 10 * 60 * 1000, // 10 minutes
+                path: "/",
+            });
+            const url = await this.authenticationService.getOAuthSignInUrl("google", { req, res }, { next: nextPath });
+            res.redirect(url);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * Google OAuth callback.
+     * Exchanges `code` for a Supabase session (sets Supabase cookies) and also sets our refreshToken cookie
+     * + stores the refresh token in DB (best-effort) for parity with password sign-in flows.
+     */
+    public googleOAuthCallback = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const code = typeof req.query.code === "string" ? req.query.code : undefined;
+            const nextFromQuery = typeof req.query.next === "string" ? req.query.next : undefined;
+            const nextFromCookie = typeof req.cookies?.oauthNext === "string" ? req.cookies.oauthNext : undefined;
+            const nextPath = nextFromQuery ?? nextFromCookie ?? "/account";
+
+            const frontendUrl = serverConfig.frontendDomainUrl ?? "";
+            const safeNext = nextPath.startsWith("/") ? nextPath : "/";
+            const authErrorUrl = `${frontendUrl}/auth-error?message=${encodeURIComponent("Google sign-in failed. Please try again.")}`;
+
+            if (!code) {
+                res.redirect(authErrorUrl);
+                return;
+            }
+
+            const { session, user } = await this.authenticationService.exchangeOAuthCodeForSession({ req, res }, code);
+
+            const clientInfo = {
+                ipAddress: req.ip ?? req.socket?.remoteAddress,
+                userAgent: req.headers["user-agent"],
+            };
+            try {
+                await this.authenticationService.generateRefreshToken({
+                    userId: user.id,
+                    token: session.refresh_token,
+                    ipAddress: clientInfo.ipAddress,
+                    userAgent: clientInfo.userAgent,
+                });
+            } catch (err) {
+                logger.warn({
+                    msg: "Failed to store refresh token (oauth)",
+                    userId: user.id,
+                    error: (err as Error).message,
+                });
+            }
+
+            // Google (and other OAuth) accounts have email_confirmed_at in auth; public.users defaulted to false from the old trigger.
+            const { updateError: oauthVerifyErr } = await this.userRepository.updateEmailVerification(user.id, true);
+            if (oauthVerifyErr) {
+                logger.warn({
+                    msg: "Failed to mark OAuth user email verified in public.users",
+                    userId: user.id,
+                    error: oauthVerifyErr,
+                });
+            }
+
+            this.setRefreshTokenCookie(res, session.refresh_token);
+
+            // Clear oauthNext so it doesn't affect future logins.
+            res.clearCookie("oauthNext", { path: "/" });
+
+            res.redirect(`${frontendUrl}${safeNext}`);
+        } catch (error) {
+            const frontendUrl = serverConfig.frontendDomainUrl ?? "";
+            const message =
+                error instanceof AuthError
+                    ? (error as Error).message
+                    : error instanceof Error
+                      ? error.message
+                      : "Google sign-in failed. Please try again.";
+            res.redirect(`${frontendUrl}/auth-error?message=${encodeURIComponent(message)}`);
+        }
+    };
 
     public signUp: validateSignUpRequestHandler = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -684,66 +794,6 @@ export class AuthController {
             res.status(200).json({ success: true, message: "Email successfully verified" });
         } catch (error) {
             next(error);
-        }
-    };
-
-    /**
-     * GET /oauth/providers – return list of configured OAuth provider names for the frontend.
-     */
-    public getOAuthProviders = async (_req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { getConfiguredOAuthProviders } = await import("../connections/oauth/providers");
-            const providers = getConfiguredOAuthProviders();
-            res.status(200).json({ success: true, data: { providers } });
-        } catch (error) {
-            next(error);
-        }
-    };
-
-    /**
-     * GET /oauth/:provider – return redirect URL for the given OAuth provider (sign-in/sign-up).
-     */
-    public getOAuthRedirectUrl = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const provider = req.params.provider?.toLowerCase() as "google" | "github" | "generic";
-            if (!provider || !["google", "github", "generic"].includes(provider)) {
-                res.status(400).json({ success: false, message: "Invalid or missing provider" });
-                return;
-            }
-            const url = this.oauthService.getRedirectUrl(provider, req.query.state as string | undefined);
-            res.status(200).json({ success: true, data: { url } });
-        } catch (error) {
-            next(error);
-        }
-    };
-
-    /**
-     * GET /oauth/:provider/callback – OAuth callback: exchange code, find/create user, redirect to magic link.
-     */
-    public getOAuthCallback = async (req: Request, res: Response, next: NextFunction) => {
-        const frontendUrl = (config.server as { frontendDomainUrl?: string }).frontendDomainUrl ?? "";
-        const authErrorUrl = (msg: string) =>
-            `${frontendUrl}/auth-error?message=${encodeURIComponent(msg)}`;
-        try {
-            const provider = req.params.provider?.toLowerCase() as "google" | "github" | "generic";
-            const code = (req.query.code as string)?.trim();
-            if (!provider || !["google", "github", "generic"].includes(provider)) {
-                res.redirect(authErrorUrl("Invalid provider"));
-                return;
-            }
-            if (!code) {
-                res.redirect(authErrorUrl("Missing code"));
-                return;
-            }
-            const { redirectTo } = await this.oauthService.handleCallback(provider, code);
-            res.redirect(redirectTo);
-        } catch (error) {
-            const message = error instanceof Error ? error.message : "OAuth failed";
-            const statusCode = error && typeof (error as { statusCode?: number }).statusCode === "number"
-                ? (error as { statusCode: number }).statusCode
-                : 500;
-            if (res.headersSent) return next(error);
-            res.redirect(authErrorUrl(`${message} (${statusCode})`));
         }
     };
 }

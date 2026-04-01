@@ -570,6 +570,14 @@ Local settings detected in vercel.json:
 ? Do you want to change additional project settings? no
 ```
 
+6. After deployment, establish yourself as the Admin User.
+
+- Head over to **localhost:3000** or your production front-end url,
+
+- In our navbar, click Sign Up to navigate to the signup page. Complete the signup process using your email and password. Verify your email with the code sent to you.
+
+- The admin button will already be visible but it will not work immediately. Go to your Supabase dashboard, select the users table in the Table Editor, and find your user entry. Manually change your **is_super_admin** field from **FALSE** to **TRUE** so that the application recognizes you as a super admin.
+
 ### Web on Vercel
 
 1. Create a **second Vercel project** (or another project under the same team) and connect the same repository.
