@@ -12,8 +12,8 @@ BEGIN;
 
 INSERT INTO public.module_configs (module_name, config) VALUES
 ('company_information', '{
-  "NAME": "Content OS",
-  "LEGAL_NAME": "Content OS",
+  "NAME": "Openquok",
+  "LEGAL_NAME": "Openquok",
   "VAT_ID": "",
   "COMPANY_ADDRESS": "",
   "URL": "https://example.com",
@@ -21,7 +21,8 @@ INSERT INTO public.module_configs (module_name, config) VALUES
   "SUPPORT_PHONE": "",
   "FOUNDING_YEAR": "",
   "RESPONSIBLE_PERSON": ""
-}'::jsonb);
+}'::jsonb)
+ON CONFLICT (module_name) DO NOTHING;
 
 -- ---------------------------
 -- Marketing Information Config
@@ -29,14 +30,15 @@ INSERT INTO public.module_configs (module_name, config) VALUES
 
 INSERT INTO public.module_configs (module_name, config) VALUES
 ('marketing_information', '{
-  "META_TITLE": "Content OS",
+  "META_TITLE": "Openquok",
   "META_DESCRIPTION": "A content platform.",
   "META_KEYWORDS": "content, platform",
   "SOCIAL_LINKS_X": "",
   "SOCIAL_LINKS_FACEBOOK": "",
   "SOCIAL_LINKS_INSTAGRAM": "",
   "SOCIAL_LINKS_YOUTUBE": ""
-}'::jsonb);
+}'::jsonb)
+ON CONFLICT (module_name) DO NOTHING;
 
 -- ---------------------------
 -- Landing Page Config
@@ -89,7 +91,8 @@ INSERT INTO public.module_configs (module_name, config) VALUES
   "CTA_BANNER_BIG_SUBTITLE": "GETTING STARTED",
   "CTA_BANNER_BIG_TITLE": "Get Started",
   "CTA_BANNER_BIG_DESCRIPTION": "Create your account and get started today."
-}'::jsonb);
+}'::jsonb)
+ON CONFLICT (module_name) DO NOTHING;
 
 -- ---------------------------
 -- END OF FILE

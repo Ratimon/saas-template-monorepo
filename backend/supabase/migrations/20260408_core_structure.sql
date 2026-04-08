@@ -69,28 +69,6 @@ COMMENT ON COLUMN public.user_profiles.website_url IS 'User website URL (renamed
 -- ---------------------------
 
 
--- Module: feedback, File: 101_20260311_tables.sql
--- ---------------------------
--- MODULE NAME: Feedback
--- MODULE DATE: 20260311
--- MODULE SCOPE: Tables
--- ---------------------------
-
-
-
-CREATE TABLE IF NOT EXISTS public.feedback (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    feedback_type TEXT,
-    url TEXT,
-    description TEXT,
-    email TEXT,
-    is_handled BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
-);
-
-COMMENT ON TABLE public.feedback IS 'User feedback (propose, report, general). Anonymous submit; list/update by app roles.';
-
-
 -- Module: user-auth, File: 102_20260227_tables.sql
 -- ---------------------------
 -- MODULE NAME: User Auth
@@ -212,6 +190,79 @@ COMMENT ON TABLE public.organization_invites IS 'Pending workspace invites (by e
 -- ---------------------------
 
 
+-- Module: rbac, File: 105_20260311_tables.sql
+-- ---------------------------
+-- MODULE NAME: RBAC (Role-Based Access Control)
+-- MODULE DATE: 20260311
+-- MODULE SCOPE: Tables
+-- ---------------------------
+-- Runs after user-management (101). user_roles references public.users(id).
+
+
+
+-- ---------------------------
+-- App permission and role enums
+-- ---------------------------
+
+DO $$ BEGIN
+    CREATE TYPE public.app_permission AS ENUM (
+        'users.manage_roles'
+    );
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE public.app_role AS ENUM (
+        'editor',
+        'support',
+        'admin'
+    );
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
+
+
+COMMENT ON TYPE public.app_permission IS 'Application-level permissions for fine-grained access control';
+COMMENT ON TYPE public.app_role IS 'App roles: editor (blog only), support (feedback only), admin (all + manage roles)';
+
+-- ---------------------------
+-- User Roles Table
+-- ---------------------------
+
+CREATE TABLE IF NOT EXISTS public.user_roles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    role public.app_role NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    created_by UUID REFERENCES public.users(id),
+    UNIQUE (user_id, role)
+);
+
+COMMENT ON TABLE public.user_roles IS 'Maps users (public.users.id) to app roles. Distinct from workspace membership (workspace_membership_role).';
+COMMENT ON COLUMN public.user_roles.user_id IS 'References public.users(id)';
+COMMENT ON COLUMN public.user_roles.role IS 'The app role assigned to the user';
+COMMENT ON COLUMN public.user_roles.created_by IS 'User who assigned this role (public.users.id)';
+
+-- ---------------------------
+-- Role Permissions Table
+-- ---------------------------
+
+CREATE TABLE IF NOT EXISTS public.role_permissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    role public.app_role NOT NULL,
+    permission public.app_permission NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    UNIQUE (role, permission)
+);
+
+COMMENT ON TABLE public.role_permissions IS 'Maps app roles to their permissions';
+
+-- ---------------------------
+-- END OF FILE
+-- ---------------------------
+
+
 -- Module: config, File: 104_20260311_tables.sql
 -- ---------------------------
 -- MODULE NAME: CONFIG
@@ -225,7 +276,7 @@ COMMENT ON TABLE public.organization_invites IS 'Pending workspace invites (by e
 -- MODULE CONFIGS
 -- ---------------------------
 
-CREATE TABLE public.module_configs (
+CREATE TABLE IF NOT EXISTS public.module_configs (
   module_name TEXT PRIMARY KEY,
   config JSONB NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -234,6 +285,28 @@ CREATE TABLE public.module_configs (
 -- ---------------------------
 -- END OF FILE
 -- ---------------------------
+
+
+-- Module: feedback, File: 101_20260311_tables.sql
+-- ---------------------------
+-- MODULE NAME: Feedback
+-- MODULE DATE: 20260311
+-- MODULE SCOPE: Tables
+-- ---------------------------
+
+
+
+CREATE TABLE IF NOT EXISTS public.feedback (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    feedback_type TEXT,
+    url TEXT,
+    description TEXT,
+    email TEXT,
+    is_handled BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+COMMENT ON TABLE public.feedback IS 'User feedback (propose, report, general). Anonymous submit; list/update by app roles.';
 
 
 -- Module: blog, File: 104_20260313_tables.sql
@@ -309,79 +382,6 @@ CREATE TABLE IF NOT EXISTS public.blog_activities (
 
 -- ---------------------------
 -- End of File
--- ---------------------------
-
-
--- Module: rbac, File: 105_20260311_tables.sql
--- ---------------------------
--- MODULE NAME: RBAC (Role-Based Access Control)
--- MODULE DATE: 20260311
--- MODULE SCOPE: Tables
--- ---------------------------
--- Runs after user-management (101). user_roles references public.users(id).
-
-
-
--- ---------------------------
--- App permission and role enums
--- ---------------------------
-
-DO $$ BEGIN
-    CREATE TYPE public.app_permission AS ENUM (
-        'users.manage_roles'
-    );
-EXCEPTION
-    WHEN duplicate_object THEN NULL;
-END $$;
-
-DO $$ BEGIN
-    CREATE TYPE public.app_role AS ENUM (
-        'editor',
-        'support',
-        'admin'
-    );
-EXCEPTION
-    WHEN duplicate_object THEN NULL;
-END $$;
-
-
-COMMENT ON TYPE public.app_permission IS 'Application-level permissions for fine-grained access control';
-COMMENT ON TYPE public.app_role IS 'App roles: editor (blog only), support (feedback only), admin (all + manage roles)';
-
--- ---------------------------
--- User Roles Table
--- ---------------------------
-
-CREATE TABLE IF NOT EXISTS public.user_roles (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-    role public.app_role NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-    created_by UUID REFERENCES public.users(id),
-    UNIQUE (user_id, role)
-);
-
-COMMENT ON TABLE public.user_roles IS 'Maps users (public.users.id) to app roles. Distinct from workspace membership (workspace_membership_role).';
-COMMENT ON COLUMN public.user_roles.user_id IS 'References public.users(id)';
-COMMENT ON COLUMN public.user_roles.role IS 'The app role assigned to the user';
-COMMENT ON COLUMN public.user_roles.created_by IS 'User who assigned this role (public.users.id)';
-
--- ---------------------------
--- Role Permissions Table
--- ---------------------------
-
-CREATE TABLE IF NOT EXISTS public.role_permissions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    role public.app_role NOT NULL,
-    permission public.app_permission NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-    UNIQUE (role, permission)
-);
-
-COMMENT ON TABLE public.role_permissions IS 'Maps app roles to their permissions';
-
--- ---------------------------
--- END OF FILE
 -- ---------------------------
 
 
@@ -1395,6 +1395,7 @@ CREATE POLICY "Super admin admins editors can view all activities" ON public.blo
 -- ---------------------------
 -- Blog Images Storage Policies
 -- ---------------------------
+DROP POLICY IF EXISTS "Allow authenticated users to delete their blog images" ON storage.objects;
 CREATE POLICY "Allow authenticated users to delete their blog images" 
     ON storage.objects
     AS PERMISSIVE
@@ -1406,6 +1407,7 @@ CREATE POLICY "Allow authenticated users to delete their blog images"
         AND auth.uid() = owner
     );
 
+DROP POLICY IF EXISTS "Allow authenticated users to update their blog images" ON storage.objects;
 CREATE POLICY "Allow authenticated users to update their blog images" 
     ON storage.objects
     AS PERMISSIVE
@@ -1429,6 +1431,7 @@ CREATE POLICY "Allow authenticated users to upload blog images"
         AND auth.uid() = owner
     );
 
+DROP POLICY IF EXISTS "Allow read access to blog images" ON storage.objects;
 CREATE POLICY "Allow read access to blog images"
     ON storage.objects
     AS PERMISSIVE
@@ -1438,6 +1441,7 @@ CREATE POLICY "Allow read access to blog images"
         bucket_id = 'blog_images'::text
     );
 
+DROP POLICY IF EXISTS "Allow service_role to manage blog images" ON storage.objects;
 CREATE POLICY "Allow service_role to manage blog images" 
     ON storage.objects
     AS PERMISSIVE
@@ -1771,6 +1775,168 @@ WHERE u.auth_id = a.id
   AND COALESCE(u.is_email_verified, false) = false;
 
 
+-- Module: organization, File: 401_20260406_functions.sql
+-- ---------------------------
+-- MODULE NAME: organization
+-- MODULE DATE: 20260406
+-- MODULE SCOPE: Functions
+-- ---------------------------
+-- Membership helpers for RLS: inline EXISTS subqueries on user_organizations
+-- from policies on the same table (or nested checks) caused infinite recursion (42P17).
+-- These SECURITY DEFINER functions read membership with owner privileges so RLS does not
+-- re-enter the same policy.
+
+
+
+CREATE OR REPLACE FUNCTION public.is_active_member_of_org(p_organization_id uuid, p_auth_id uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.user_organizations uo
+    JOIN public.users u ON u.id = uo.user_id
+    WHERE uo.organization_id = p_organization_id
+      AND u.auth_id = p_auth_id
+      AND uo.disabled = FALSE
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_active_admin_or_superadmin_of_org(p_organization_id uuid, p_auth_id uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.user_organizations uo
+    JOIN public.users u ON u.id = uo.user_id
+    WHERE uo.organization_id = p_organization_id
+      AND u.auth_id = p_auth_id
+      AND uo.disabled = FALSE
+      AND uo.role IN ('admin', 'superadmin')
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_active_superadmin_of_org(p_organization_id uuid, p_auth_id uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.user_organizations uo
+    JOIN public.users u ON u.id = uo.user_id
+    WHERE uo.organization_id = p_organization_id
+      AND u.auth_id = p_auth_id
+      AND uo.disabled = FALSE
+      AND uo.role = 'superadmin'
+  );
+$$;
+
+GRANT EXECUTE ON FUNCTION public.is_active_member_of_org(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_active_member_of_org(uuid, uuid) TO service_role;
+GRANT EXECUTE ON FUNCTION public.is_active_admin_or_superadmin_of_org(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_active_admin_or_superadmin_of_org(uuid, uuid) TO service_role;
+GRANT EXECUTE ON FUNCTION public.is_active_superadmin_of_org(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_active_superadmin_of_org(uuid, uuid) TO service_role;
+
+COMMENT ON FUNCTION public.is_active_member_of_org(uuid, uuid) IS 'RLS helper: non-disabled membership in organization (bypasses RLS inside).';
+COMMENT ON FUNCTION public.is_active_admin_or_superadmin_of_org(uuid, uuid) IS 'RLS helper: admin or superadmin membership (bypasses RLS inside).';
+COMMENT ON FUNCTION public.is_active_superadmin_of_org(uuid, uuid) IS 'RLS helper: superadmin membership (bypasses RLS inside).';
+
+-- ---------------------------
+-- RLS: organizations (replace policies to use helpers)
+-- ---------------------------
+
+DROP POLICY IF EXISTS "Members can view organization" ON public.organizations;
+CREATE POLICY "Members can view organization"
+ON public.organizations
+AS PERMISSIVE
+FOR SELECT
+TO authenticated
+USING (public.is_active_member_of_org(organizations.id, auth.uid()));
+
+DROP POLICY IF EXISTS "Admins can update organization" ON public.organizations;
+CREATE POLICY "Admins can update organization"
+ON public.organizations
+AS PERMISSIVE
+FOR UPDATE
+TO authenticated
+USING (public.is_active_admin_or_superadmin_of_org(organizations.id, auth.uid()))
+WITH CHECK (public.is_active_admin_or_superadmin_of_org(organizations.id, auth.uid()));
+
+DROP POLICY IF EXISTS "Superadmin can delete organization" ON public.organizations;
+CREATE POLICY "Superadmin can delete organization"
+ON public.organizations
+AS PERMISSIVE
+FOR DELETE
+TO authenticated
+USING (public.is_active_superadmin_of_org(organizations.id, auth.uid()));
+
+-- ---------------------------
+-- RLS: user_organizations (replace policies to use helpers)
+-- ---------------------------
+
+DROP POLICY IF EXISTS "Members can view user_organizations" ON public.user_organizations;
+CREATE POLICY "Members can view user_organizations"
+ON public.user_organizations
+AS PERMISSIVE
+FOR SELECT
+TO authenticated
+USING (public.is_active_member_of_org(user_organizations.organization_id, auth.uid()));
+
+DROP POLICY IF EXISTS "Admins can add team member" ON public.user_organizations;
+CREATE POLICY "Admins can add team member"
+ON public.user_organizations
+AS PERMISSIVE
+FOR INSERT
+TO authenticated
+WITH CHECK (public.is_active_admin_or_superadmin_of_org(user_organizations.organization_id, auth.uid()));
+
+DROP POLICY IF EXISTS "Admins can update membership" ON public.user_organizations;
+CREATE POLICY "Admins can update membership"
+ON public.user_organizations
+AS PERMISSIVE
+FOR UPDATE
+TO authenticated
+USING (public.is_active_admin_or_superadmin_of_org(user_organizations.organization_id, auth.uid()))
+WITH CHECK (public.is_active_admin_or_superadmin_of_org(user_organizations.organization_id, auth.uid()));
+
+DROP POLICY IF EXISTS "Admins or self can delete membership" ON public.user_organizations;
+CREATE POLICY "Admins or self can delete membership"
+ON public.user_organizations
+AS PERMISSIVE
+FOR DELETE
+TO authenticated
+USING (
+    EXISTS (
+        SELECT 1 FROM public.users u
+        WHERE u.id = user_organizations.user_id AND u.auth_id = auth.uid()
+    )
+    OR public.is_active_admin_or_superadmin_of_org(user_organizations.organization_id, auth.uid())
+);
+
+-- ---------------------------
+-- RLS: organization_invites (admin insert uses helper)
+-- ---------------------------
+
+DROP POLICY IF EXISTS "Admins can create invite" ON public.organization_invites;
+CREATE POLICY "Admins can create invite"
+ON public.organization_invites
+AS PERMISSIVE
+FOR INSERT
+TO authenticated
+WITH CHECK (public.is_active_admin_or_superadmin_of_org(organization_invites.organization_id, auth.uid()));
+
+
 -- Module: rbac, File: 401_20260311_functions.sql
 -- ---------------------------
 -- MODULE NAME: RBAC (Role-Based Access Control)
@@ -1970,16 +2136,19 @@ END;
 $$ language 'plpgsql';
 
 -- Apply to all tables with updated_at
+DROP TRIGGER IF EXISTS update_blog_posts_updated_at ON public.blog_posts;
 CREATE TRIGGER update_blog_posts_updated_at
     BEFORE UPDATE ON public.blog_posts
     FOR EACH ROW
     EXECUTE FUNCTION public.update_blog_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_blog_topics_updated_at ON public.blog_topics;
 CREATE TRIGGER update_blog_topics_updated_at
     BEFORE UPDATE ON public.blog_topics
     FOR EACH ROW
     EXECUTE FUNCTION public.update_blog_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_blog_comments_updated_at ON public.blog_comments;
 CREATE TRIGGER update_blog_comments_updated_at
     BEFORE UPDATE ON public.blog_comments
     FOR EACH ROW
@@ -2036,6 +2205,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS set_post_slug ON public.blog_posts;
 CREATE TRIGGER set_post_slug
     BEFORE INSERT ON public.blog_posts
     FOR EACH ROW
@@ -2054,6 +2224,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS set_topic_slug ON public.blog_topics;
 CREATE TRIGGER set_topic_slug
     BEFORE INSERT ON public.blog_topics
     FOR EACH ROW
@@ -2081,6 +2252,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS set_reading_time ON public.blog_posts;
 CREATE TRIGGER set_reading_time
     BEFORE INSERT OR UPDATE OF content ON public.blog_posts
     FOR EACH ROW
@@ -2102,6 +2274,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS set_published_at ON public.blog_posts;
 CREATE TRIGGER set_published_at
     BEFORE UPDATE ON public.blog_posts
     FOR EACH ROW
@@ -2125,6 +2298,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_post_view_count ON public.blog_activities;
 CREATE TRIGGER update_post_view_count
     AFTER INSERT ON public.blog_activities
     FOR EACH ROW
@@ -2220,7 +2394,8 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.module_configs (module_name, config) VALUES
 ('user_auth', '{
   "ALLOW_USER_SIGNUPS": "true"
-}'::jsonb);
+}'::jsonb)
+ON CONFLICT (module_name) DO NOTHING;
 
 
 -- ---------------------------
@@ -2256,8 +2431,8 @@ ON CONFLICT (role, permission) DO NOTHING;
 
 INSERT INTO public.module_configs (module_name, config) VALUES
 ('company_information', '{
-  "NAME": "Content OS",
-  "LEGAL_NAME": "Content OS",
+  "NAME": "Openquok",
+  "LEGAL_NAME": "Openquok",
   "VAT_ID": "",
   "COMPANY_ADDRESS": "",
   "URL": "https://example.com",
@@ -2265,7 +2440,8 @@ INSERT INTO public.module_configs (module_name, config) VALUES
   "SUPPORT_PHONE": "",
   "FOUNDING_YEAR": "",
   "RESPONSIBLE_PERSON": ""
-}'::jsonb);
+}'::jsonb)
+ON CONFLICT (module_name) DO NOTHING;
 
 -- ---------------------------
 -- Marketing Information Config
@@ -2273,14 +2449,15 @@ INSERT INTO public.module_configs (module_name, config) VALUES
 
 INSERT INTO public.module_configs (module_name, config) VALUES
 ('marketing_information', '{
-  "META_TITLE": "Content OS",
+  "META_TITLE": "Openquok",
   "META_DESCRIPTION": "A content platform.",
   "META_KEYWORDS": "content, platform",
   "SOCIAL_LINKS_X": "",
   "SOCIAL_LINKS_FACEBOOK": "",
   "SOCIAL_LINKS_INSTAGRAM": "",
   "SOCIAL_LINKS_YOUTUBE": ""
-}'::jsonb);
+}'::jsonb)
+ON CONFLICT (module_name) DO NOTHING;
 
 -- ---------------------------
 -- Landing Page Config
@@ -2333,7 +2510,8 @@ INSERT INTO public.module_configs (module_name, config) VALUES
   "CTA_BANNER_BIG_SUBTITLE": "GETTING STARTED",
   "CTA_BANNER_BIG_TITLE": "Get Started",
   "CTA_BANNER_BIG_DESCRIPTION": "Create your account and get started today."
-}'::jsonb);
+}'::jsonb)
+ON CONFLICT (module_name) DO NOTHING;
 
 -- ---------------------------
 -- END OF FILE
