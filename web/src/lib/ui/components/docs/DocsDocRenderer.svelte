@@ -41,7 +41,10 @@
 
 	function enhanceContent(container: HTMLElement) {
 		const headings = container.querySelectorAll<HTMLElement>('h2, h3, h4, h5, h6');
+		
 		for (const heading of headings) {
+			// Alert / Callout titles use <h5> (AlertTitle); do not add TOC anchor "#" to those.
+			if (heading.closest('[role="alert"]')) continue;
 			if (!heading.id) {
 				heading.id =
 					heading.textContent

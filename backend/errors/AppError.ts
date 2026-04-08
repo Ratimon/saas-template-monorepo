@@ -26,7 +26,9 @@ export class AppError extends Error {
         if (options.errorCode) {
             this.metadata.errorCode = options.errorCode;
         }
-        Object.setPrototypeOf(this, AppError.prototype);
+        // Preserve subclass prototype chain (AppError.prototype breaks instanceof UserNotFoundError, etc.).
+        Object.setPrototypeOf(this, new.target.prototype);
         Error.captureStackTrace?.(this, this.constructor);
     }
 }
+
