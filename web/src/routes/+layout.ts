@@ -1,16 +1,23 @@
 import type { LayoutLoad } from './$types';
 import { browser } from '$app/environment';
+import { getRootPathSignin, getRootPathSignup } from '$lib/user-auth/constants/getRootpathUserAuth';
+import { normalizeApiBaseUrl, route } from '$lib/utils/path';
 
 export const load: LayoutLoad = async ({ data, depends, fetch, url }) => {
 	if (browser) {
 		// Fallback: if Supabase redirects back to the frontend Site URL with `?code=...`,
 		// forward to the backend callback so it can exchange the code and set cookies.
-		// We scope this to the landing page to avoid interfering with other flows that may also use `code`.
+		// Scoped to a few routes so other `code` query uses are not hijacked.
 		const code = url.searchParams.get('code');
-		if (code && url.pathname === '/') {
+		const path = url.pathname;
+		const oauthCodeLanding =
+			path === '/' ||
+			path === route(getRootPathSignin()) ||
+			path === route(getRootPathSignup());
+		if (code && oauthCodeLanding) {
 			try {
 				const { CONFIG_SCHEMA_BACKEND } = await import('$lib/config/constants/config');
-				let base = String(CONFIG_SCHEMA_BACKEND.API_BASE_URL.default ?? '').trim().replace(/\/+$/, '');
+				let base = normalizeApiBaseUrl(String(CONFIG_SCHEMA_BACKEND.API_BASE_URL.default ?? ''));
 				if (!base) base = url.origin;
 				const callback = new URL('/api/v1/auth/oauth/google/callback', `${base}/`);
 				callback.searchParams.set('code', code);

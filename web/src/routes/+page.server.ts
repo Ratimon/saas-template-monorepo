@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ parent, url }) => {
 	const footerNavigationLinks = { ...PUBLIC_FOOTER_LINKS };
 
 	// SEO: landing page meta (SSR-safe, used by root layout for <title> and meta description)
-	// "Openquok"
+	// "yourwebsite"
 	const pageMetaTags = {
 		...baseMetaTags,
 		titleTemplate: '%s'

@@ -1,6 +1,6 @@
 import type { ModuleConfigSchema } from '$lib/config/constants/types';
 import { getRootPathPublicBlog } from '$lib/area-public/constants/getRootPathPublicBlog';
-import { route } from '$lib/utils/path';
+import { normalizeApiBaseUrl, route } from '$lib/utils/path';
 
 const publicBlogPath = route(getRootPathPublicBlog());
 
@@ -9,13 +9,23 @@ const appTitle = 'Content OS';
 const appDescription = 'Content OS web application';
 
 function getApiBaseUrl(): string {
-	if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) {
-		return import.meta.env.VITE_API_BASE_URL as string;
+	const fromMeta =
+		typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL !== undefined
+			? String(import.meta.env.VITE_API_BASE_URL)
+			: undefined;
+	const fromProcess =
+		typeof process !== 'undefined' && process.env?.VITE_API_BASE_URL !== undefined
+			? String(process.env.VITE_API_BASE_URL)
+			: undefined;
+	const explicit = fromMeta ?? fromProcess;
+	if (explicit !== undefined) {
+		return normalizeApiBaseUrl(explicit);
 	}
-	if (typeof process !== 'undefined' && process.env?.VITE_API_BASE_URL) {
-		return process.env.VITE_API_BASE_URL as string;
+	// Dev + Vite proxy: empty base → relative `/api/...` on the web origin so cookies stay same-site with HTTPS dev.
+	if (typeof import.meta !== 'undefined' && import.meta.env.DEV) {
+		return '';
 	}
-	return 'http://localhost:3000';
+	return normalizeApiBaseUrl('http://localhost:3000');
 }
 
 export const CONFIG_SCHEMA_BACKEND: ModuleConfigSchema = {

@@ -29,7 +29,8 @@ const authConfig: AuthConfig = {
 };
 
 const authStatusModel = new AuthStatusModel();
-const authenticationRepository = new AuthenticationRepository(
+/** Typed explicitly so consumers see full `AuthenticationRepository` API (methods are not always inferred on `.svelte.ts` classes with `$state`). */
+const authenticationRepository: AuthenticationRepository = new AuthenticationRepository(
 	httpGateway,
 	authConfig,
 	authStatusModel
@@ -51,6 +52,8 @@ export {
 } from '$lib/user-auth/user-auth.types';
 
 export { OAUTH_GOOGLE_PATH, getGoogleOAuthStartUrl } from '$lib/user-auth/constants/googleOAuth';
+
+export { getPostSigninRedirectTarget } from '$lib/user-auth/utils/getPostSigninRedirectTarget';
 
 export { authStatusModel, authenticationRepository, signinPresenter, signupPresenter, signoutPresenter, verifyEmailPresenter, resetPasswordPresenter };
 export { AuthStatus } from '$lib/user-auth/AuthStatus.model.svelte';

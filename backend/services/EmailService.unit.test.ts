@@ -223,7 +223,7 @@ describe("EmailService", () => {
             expect(mockSendMail).toHaveBeenCalledTimes(1);
             expect(mockSendMail).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    from: { name: "Openquok", address: "noreply@example.com" },
+                    from: { name: "yourwebsite", address: "noreply@example.com" },
                     to: "user@example.com",
                     subject: "Re: Hello",
                     text: "Plain body",

@@ -145,7 +145,7 @@ export class EmailService {
         try {
             await this.transporter.sendMail({
                 from: {
-                    name: basicConfig?.siteName ?? "Openquok",
+                    name: basicConfig?.siteName ?? "yourwebsite",
                     address: basicConfig?.senderEmailAddress ?? "noreply@example.com",
                 },
                 to,
@@ -183,7 +183,7 @@ export class EmailService {
         try {
             await this.transporter.sendMail({
                 from: {
-                    name: basicConfig?.siteName ?? "Openquok",
+                    name: basicConfig?.siteName ?? "yourwebsite",
                     address: basicConfig?.senderEmailAddress ?? "noreply@example.com",
                 },
                 to: options.to,

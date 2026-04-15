@@ -28,7 +28,7 @@ export const config: ConfigObject = {
 
     /** Sender identity for transactional email (Resend/SES). */
     basic: {
-        siteName: getEnv("SITE_NAME", "Openquok"),
+        siteName: getEnv("SITE_NAME", "yourwebsite"),
         senderEmailAddress: getEnv("SENDER_EMAIL_ADDRESS", "noreply@example.com"),
     },
 
@@ -87,7 +87,7 @@ export const config: ConfigObject = {
         enabled: getEnvBoolean("EMAIL_ENABLED", false),
         /** When true, use local SES mock (e.g. aws-ses-v2-local) for email. */
         isEmailServerOffline: getEnvBoolean("IS_EMAIL_SERVER_OFFLINE", false),
-        // fromName: getEnv("EMAIL_FROM_NAME", "Openquok"),
+        // fromName: getEnv("EMAIL_FROM_NAME", "yourwebsite"),
         // fromAddress: getEnv("EMAIL_FROM_ADDRESS", "noreply@example.com"),
     },
 

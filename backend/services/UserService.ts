@@ -4,6 +4,7 @@ import type { RbacRepository } from "../repositories/RbacRepository";
 import type { AppRole } from "../data/types/rbacTypes";
 import type CacheService from "../connections/cache/CacheService";
 import type CacheInvalidationService from "../connections/cache/CacheInvalidationService";
+
 import { config } from "../config/GlobalConfig";
 import { logger } from "../utils/Logger";
 
@@ -143,6 +144,16 @@ export class UserService {
         await this._invalidateUserRelatedCaches({
             authUserId,
             userEmail: userData?.email ?? undefined,
+        });
+    }
+
+    /**
+     * Call after email verification is persisted (e.g. verify-signup) so GET /users/me is not stale.
+     */
+    async invalidateCachesAfterEmailVerification(authUserId: string, userEmail: string | null): Promise<void> {
+        await this._invalidateUserRelatedCaches({
+            authUserId,
+            userEmail: userEmail ?? undefined,
         });
     }
 

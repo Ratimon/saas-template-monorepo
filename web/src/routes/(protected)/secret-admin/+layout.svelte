@@ -23,7 +23,7 @@
 
 	let { children, data }: Props = $props();
 	const currentUser = $derived((data as App.LayoutData)?.currentUser ?? null);
-	const companyNameVm = $derived((data as App.LayoutData)?.companyNameVm ?? 'Openquok');
+	const companyNameVm = $derived((data as App.LayoutData)?.companyNameVm ?? 'yourwebsite');
 
 	const secretAdminLinks: SidebarLinkItem[] = [
 		{ label: 'Admin Dashboard', href: url(getRootPathSecretAdminArea()), iconName: icons.Gauge.name },

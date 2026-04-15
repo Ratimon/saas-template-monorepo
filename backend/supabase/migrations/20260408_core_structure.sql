@@ -2431,8 +2431,8 @@ ON CONFLICT (role, permission) DO NOTHING;
 
 INSERT INTO public.module_configs (module_name, config) VALUES
 ('company_information', '{
-  "NAME": "Openquok",
-  "LEGAL_NAME": "Openquok",
+  "NAME": "yourwebsite",
+  "LEGAL_NAME": "yourwebsite",
   "VAT_ID": "",
   "COMPANY_ADDRESS": "",
   "URL": "https://example.com",
@@ -2449,7 +2449,7 @@ ON CONFLICT (module_name) DO NOTHING;
 
 INSERT INTO public.module_configs (module_name, config) VALUES
 ('marketing_information', '{
-  "META_TITLE": "Openquok",
+  "META_TITLE": "yourwebsite",
   "META_DESCRIPTION": "A content platform.",
   "META_KEYWORDS": "content, platform",
   "SOCIAL_LINKS_X": "",

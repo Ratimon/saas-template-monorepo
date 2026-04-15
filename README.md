@@ -6,6 +6,7 @@
 - [Quickstart](#quickstart)
 - [Backend Setup](#backend-setup)
 - [Frontend Setup](#frontend-setup)
+  - [Trusted local HTTPS (mkcert)](#trusted-local-https-mkcert)
 - [Vercel deployment](#vercel-deployment)
 - [Role-Based Access Control (RBAC)](#role-based-access-control-rbac)
 - [Security Guidelines](#security-guidelines)
@@ -440,7 +441,7 @@ Follow the Resend guide: <ExternalLink href="https://resend.com/docs/dashboard/d
 
 If you use AWS Route 53:
 
-- Go to **Route 53** → **Hosted zones** → select your domain (e.g. `openquok.com`)
+- Go to **Route 53** → **Hosted zones** → select your domain
 - Create a record:
   - **Name**: `_dmarc`
   - **Type**: `TXT`
@@ -454,6 +455,40 @@ Start with `p=none` (monitoring) and move to `p=quarantine` once you confirm you
 
 
 ## Frontend Setup
+
+### Trusted local HTTPS (`mkcert`)
+
+The Vite dev server is configured for **HTTPS** on `https://localhost:5173` and reads a key and certificate from `web/.cert/` (see [`web/vite.config.ts`](web/vite.config.ts)). Without a certificate the dev server will not start; without a **trusted** certificate your browser will warn on every load and some flows (for example Google OAuth and cookies on the `/api` proxy) expect the app origin to be HTTPS on that host.
+
+Use [**mkcert**](https://github.com/FiloSottile/mkcert) to create a locally trusted development CA and leaf certificate:
+
+1. **Install mkcert** (see the [mkcert installation](https://github.com/FiloSottile/mkcert#installation) section of the project README). On macOS with Homebrew:
+
+   ```bash
+   brew install mkcert
+   ```
+
+   If you use **Firefox** on macOS, install **`nss`** (`brew install nss`) before `mkcert -install` so the local CA is registered in Firefox’s certificate store (see mkcert’s README).
+
+2. **Install the local CA** once per machine (may prompt for your password):
+
+   ```bash
+   mkcert -install
+   ```
+
+3. **Generate files that match Vite** (names and paths must be `localhost-key.pem` and `localhost.pem` under `web/.cert/`):
+
+   ```bash
+   cd web
+   mkdir -p .cert
+   mkcert -key-file .cert/localhost-key.pem -cert-file .cert/localhost.pem localhost 127.0.0.1 ::1
+   ```
+
+4. **Start the app** from `web/` with `pnpm dev` and open `https://localhost:5173`. The certificate should be accepted without manual exceptions.
+
+Keep the `.pem` files **out of version control** (they are private key material). Regenerate them on a new machine or after rotation with the same `mkcert` command.
+
+Align local env with HTTPS: use `https://localhost:5173` for the web origin (for example `VITE_FRONTEND_DOMAIN_URL` in [`web/.env.development.example`](web/.env.development.example) and `FRONTEND_DOMAIN_URL` / OAuth redirect URIs in the backend and Google Cloud Console). The Vite `server.proxy` entry forwards `/api` to the Express backend so the browser stays on the same HTTPS origin while calling the API.
 
 ### 1. Environment Variables Setup for Web
 
@@ -537,8 +572,8 @@ Deploy the **backend** (Express) and **web** (SvelteKit) to [Vercel](https://ver
 
 >[!IMPORTANT]
 > CORS origin matching is exact. In production:
-> - Set `FRONTEND_DOMAIN_URL` **without trailing slash** (use `https://www.openquok.com`, not `https://www.openquok.com/`).
-> - Include both apex and `www` in `ALLOWED_FRONTEND_ORIGINS` (example: `https://openquok.com,https://www.openquok.com`).
+> - Set `FRONTEND_DOMAIN_URL` **without trailing slash** (use `https://www.example.com`, not `https://www.example.com/`).
+> - Include both apex and `www` in `ALLOWED_FRONTEND_ORIGINS` (example: `https://yourwebsite.com,https://www.yourwebsite.com`).
 > - Keep web `VITE_API_BASE_URL` pointing to the same backend origin used by `BACKEND_DOMAIN_URL`.
 >
 > If these do not match, browser preflight for auth endpoints (such as `/api/v1/auth/refresh`) can fail with a CORS error.

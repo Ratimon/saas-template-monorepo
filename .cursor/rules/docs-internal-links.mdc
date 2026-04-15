@@ -19,7 +19,7 @@ Applies to Markdown and MDsvex files under `web/src/content/docs/`.
 ## Links to files in this repository
 
 - Prefer **stable GitHub URLs** to the **default branch** (`main`):  
-  `https://github.com/Ratimon/openquok-monorepo/blob/main/<path>`  
+  `https://github.com/Ratimon/yourwebsite-monorepo/blob/main/<path>`  
   Wrap with `<DocsExternalLink href="...">` when the link leaves the docs site (GitHub is external).
 - **Short labels** can use `<code>path/to/file</code>` inside the link, or **`Badge`** with **`variant="path"`** for scan-friendly chips:  
   `<DocsExternalLink href="https://github.com/.../blob/main/backend/vercel.json"><Badge text="backend/vercel.json" variant="path" /></DocsExternalLink>`.
@@ -120,4 +120,4 @@ Edit `web/src/lib/docs/constants/config.ts` with your site details.
 ## Front matter
 
 - Keep `title`, `description`, `order`, and `lastUpdated` on index and substantive pages when the rest of the docs do.
-- For SEO, include **“OpenQuok”** and a short product keyword such as **“social scheduler”** in the `description` where it fits naturally (especially on top-level section pages and major guides). Avoid keyword stuffing — keep it readable.
+- For SEO, include **“yourwebsite”** and a short product keyword such as **“social scheduler”** in the `description` where it fits naturally (especially on top-level section pages and major guides). Avoid keyword stuffing — keep it readable.

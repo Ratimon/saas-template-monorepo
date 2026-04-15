@@ -4,10 +4,13 @@
 	import type { SidebarLinkItem } from '$lib/ui/sidebar-expandable/types';
 	import type { SettingsNavItem } from '$lib/ui/sidebar-main/types';
 
+	// import { browser } from '$app/environment';
+	// import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { setContext } from 'svelte';
 	import { icons } from '$data/icon';
 	import { SETTINGS_SIDEBAR_KEY } from '$lib/ui/templates/sidebar-secondary-context';
+	
 	import AdminLayout from '$lib/ui/layouts/AdminLayout.svelte';
 
 	type AppSettingsSectionId =
@@ -27,9 +30,10 @@
 	let { children, data }: Props = $props();
 
 	const currentUser = $derived((data as App.LayoutData)?.currentUser ?? null);
-	const companyNameVm = $derived((data as App.LayoutData)?.companyNameVm ?? 'Content OS');
+	const companyNameVm = $derived((data as App.LayoutData)?.companyNameVm ?? 'yourwebsite');
 
 	const mainLinks: SidebarLinkItem[] = [
+		{ label: 'Dashboard', href: '/', iconName: icons.Gauge.name },
 		{ label: 'Calendar', href: '/calendar', iconName: icons.CalendarClock.name },
 		{ label: 'Analytics', href: '/analytics', iconName: icons.ChartBar.name },
 		{ label: 'Media', href: '/media', iconName: icons.Image.name },
@@ -61,9 +65,14 @@
 		});
 	}
 	setSettingsSidebarContext();
+
 </script>
 
-<AdminLayout {currentUser} companyName={companyNameVm} mainLinks={mainLinks}>
+<AdminLayout
+	{currentUser}
+	companyName={companyNameVm}
+	mainLinks={mainLinks}
+>
 	{@render children?.()}
 </AdminLayout>
 

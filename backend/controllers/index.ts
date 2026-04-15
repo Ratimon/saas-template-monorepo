@@ -11,7 +11,7 @@ import { EmailController } from "./EmailController";
 import { authenticationService, emailService, userService, companyService, marketingService, organizationService, rbacService, feedbackService, blogService, configService } from "../services/index";
 import { userRepository, storageRepository } from "../repositories/index";
 
-export const authController = new AuthController(authenticationService, userRepository, emailService, organizationService);
+export const authController = new AuthController(authenticationService, userRepository, userService, emailService, organizationService);
 export const userController = new UserController(userService, authenticationService, emailService);
 export const companyController = new CompanyController(companyService, marketingService);
 export const settingsController = new SettingsController(organizationService);
