@@ -8,7 +8,7 @@
 	// import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { setContext } from 'svelte';
-	import { icons } from '$data/icon';
+	import { icons } from '$data/icons';
 	import { SETTINGS_SIDEBAR_KEY } from '$lib/ui/templates/sidebar-secondary-context';
 	
 	import AdminLayout from '$lib/ui/layouts/AdminLayout.svelte';

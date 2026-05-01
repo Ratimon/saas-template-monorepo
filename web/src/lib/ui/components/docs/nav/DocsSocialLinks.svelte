@@ -1,6 +1,6 @@
 <script lang="ts" module>
-	import type { IconName } from '$data/icon';
-	import { icons } from '$data/icon';
+	import type { IconName } from '$data/icons';
+	import { icons } from '$data/icons';
 
 	const iconMap: Record<string, IconName> = {
 		github: icons.Github.name,

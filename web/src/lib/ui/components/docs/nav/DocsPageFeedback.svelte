@@ -3,7 +3,7 @@
 
 	import { docsPageFeedbackPresenter, FeedbackStatus } from '$lib/feedback';
 
-	import { icons } from '$data/icon';
+	import { icons } from '$data/icons';
 
 	import FeedbackDialog from '$lib/ui/components/feedback/FeedbackDialog.svelte';
 	import Button from '$lib/ui/buttons/Button.svelte';

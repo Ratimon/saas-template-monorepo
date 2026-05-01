@@ -7,7 +7,7 @@
 		stripAppBase
 	} from '$lib/area-public/constants/getRootPathPublicDocs';
 	import { docsConfig } from '$lib/docs/config';
-	import { icons } from '$data/icon';
+	import { icons } from '$data/icons';
 
 	import * as DropdownMenu from '$lib/ui/dropdown-menu/index.js';
 	import AbstractIcon from '$lib/ui/icons/AbstractIcon.svelte';

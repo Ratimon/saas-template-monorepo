@@ -1,4 +1,4 @@
-import type { IconName } from '$data/icon';
+import type { IconName } from '$data/icons';
 
 /** Compatible with store-like subscription + get (used by dock for mouse position; no svelte-motion to avoid NaN keyframes) */
 export interface DockPositionStore {

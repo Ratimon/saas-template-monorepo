@@ -4,7 +4,7 @@
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { icons } from '$data/icon';
+	import { icons } from '$data/icons';
 
 	import * as Collapsible from '$lib/ui/collapsible/index.js';
 	import * as DropdownMenu from '$lib/ui/dropdown-menu/index.js';

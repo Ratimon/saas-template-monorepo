@@ -3,7 +3,7 @@
 
 	import { fly } from 'svelte/transition';
 	import AbstractIcon from '$lib/ui/icons/AbstractIcon.svelte';
-	import { icons } from '$data/icon';
+	import { icons } from '$data/icons';
 	import { cn } from '$lib/ui/helpers/common';
 
 	type Props = {

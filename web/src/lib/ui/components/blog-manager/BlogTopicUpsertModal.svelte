@@ -5,7 +5,7 @@
 	import { buildBlogTopicViewModelFromUpsert } from '$lib/blog/utils';
 	import { createSortedTopicChoices } from '$lib/blog/utils/parentPathCreator';
 
-	import { icons } from '$data/icon';
+	import { icons } from '$data/icons';
 	import { toast } from '$lib/ui/sonner';
 
 	import AbstractIcon from '$lib/ui/icons/AbstractIcon.svelte';

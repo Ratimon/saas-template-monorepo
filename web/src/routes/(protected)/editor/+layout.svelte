@@ -3,7 +3,7 @@
 	import type { LayoutData } from './$types';
 	import type { SidebarLinkItem } from '$lib/ui/sidebar-expandable/types';
 
-	import { icons } from '$data/icon';
+	import { icons } from '$data/icons';
 	import { url } from '$lib/utils/path';
 	import { getRootPathEditorArea, getRootPathEditorFeedbackManager } from '$lib/area-admin/constants/getRootPathEditorArea';
 	import { getRootPathAccount } from '$lib/area-protected/getRootPathProtectedArea';
